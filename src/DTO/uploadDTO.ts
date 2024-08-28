@@ -1,16 +1,10 @@
 import { Transform } from 'class-transformer'
-import { IsBase64, IsDate, IsEnum, IsString } from 'class-validator'
+import { IsDate, IsEnum, IsString } from 'class-validator'
+import { IsBase64Image } from '../validate/isBase64Image'
 import { validateFormated } from '../validate/validateFormated'
 
 export class UploadDTO {
-  @IsBase64(
-    {
-      urlSafe: true,
-    },
-    {
-      message: 'image must be a base64 string',
-    }
-  )
+  @IsBase64Image({ message: 'image must be a base64 string' })
   image: string
 
   @IsString({ message: 'customer code must be a string' })
