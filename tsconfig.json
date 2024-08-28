@@ -20,7 +20,12 @@
       "ESNext"
     ],
     "outDir": "dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": { // Adicione esta seção
+      "@/*": ["src/*"]
+    }
+    
   },
   "include": ["src/**/*.ts"]
 }

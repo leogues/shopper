@@ -1,0 +1,27 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
+import { Measure } from './measure.entity'
+
+@Entity('images')
+export class Image {
+  @PrimaryGeneratedColumn('uuid')
+  id: string
+
+  @Column({ type: 'text' })
+  imageUrl: string
+
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
+
+  @OneToOne(() => Measure, (measure) => measure.image)
+  measure: Measure
+}
