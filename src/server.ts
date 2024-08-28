@@ -1,5 +1,15 @@
 import server from './app'
-const port = 3000
+import minioClient from './bucket/minio/minio'
+const port = 80
+
+minioClient
+  .bucketExists('shopper')
+  .then((res) => {
+    console.log(res)
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 
 server.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`)

@@ -5,7 +5,7 @@ import {
 } from 'class-validator'
 import { isBase64 } from 'validator'
 
-const SUPPORTED_IMAGE_TYPES = ['jpeg', 'png', 'gif', 'webp']
+const SUPPORTED_IMAGE_TYPES = ['jpeg', 'png', 'webp']
 
 const isBase64Image = (value: any, args: ValidationArguments) => {
   if (typeof value !== 'string') return false
@@ -14,10 +14,12 @@ const isBase64Image = (value: any, args: ValidationArguments) => {
     '|'
   )});base64,`
 
-  const isValidPrefix = new RegExp(prefixPattern).test(value)
+  const regex = new RegExp(prefixPattern)
+
+  const isValidPrefix = regex.test(value)
   if (!isValidPrefix) return false
 
-  const base64String = value.replace(new RegExp(prefixPattern), '')
+  const base64String = value.replace(regex, '')
   return isBase64(base64String)
 }
 
