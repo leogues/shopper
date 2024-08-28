@@ -1,5 +1,5 @@
 import express from 'express'
-import dataSource from './database/typeorm/datasource'
+import dataSource from './infrastructure/database/typeorm/datasource'
 import { errorMiddleware } from './middleware/errorMiddleware'
 import routes from './routes'
 

@@ -1,5 +1,5 @@
 import server from './app'
-import minioClient from './bucket/minio/minio'
+import minioClient from './infrastructure/bucket/minio/minio'
 const port = 80
 
 minioClient
