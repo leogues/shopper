@@ -1,6 +1,8 @@
 import { plainToClass } from 'class-transformer'
 import express, { NextFunction, Request, Response } from 'express'
 import { UploadDTO } from './DTO/uploadDTO'
+import { dataSource } from './infrastructure/database/typeorm/datasource'
+import { CustomerRepository } from './infrastructure/database/typeorm/repository/customerRepository'
 import { loadStorageConfig } from './infrastructure/storage/config'
 import { MinioStorage } from './infrastructure/storage/minio/minio'
 import { UploadMeasure } from './useCase/uploadMeasure'
@@ -11,7 +13,9 @@ const storageConfig = loadStorageConfig()
 
 const storage = new MinioStorage(storageConfig.minio)
 
-const uploadMeasure = new UploadMeasure(storage)
+const costumerRepository = new CustomerRepository(dataSource)
+
+const uploadMeasure = new UploadMeasure(storage, costumerRepository)
 
 routes.post(
   '/upload',
