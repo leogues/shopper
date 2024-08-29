@@ -12,11 +12,13 @@ import { Customer } from './customer.entity'
 import { Image } from './image.entity'
 
 export enum SupportedMeasureType {
-  WATER = 'water',
-  GAS = 'gas',
+  WATER = 'WATER',
+  GAS = 'GAS',
 }
 
 export type MeasureType = keyof typeof SupportedMeasureType
+
+export const measureTypes = Object.values(SupportedMeasureType)
 
 @Entity('measures')
 export class Measure {
@@ -29,7 +31,7 @@ export class Measure {
   @Column({ type: 'timestamp' })
   measureDatetime: Date
 
-  @Column({ type: 'enum', enum: ['water', 'gas'] })
+  @Column({ type: 'enum', enum: measureTypes })
   measureType: MeasureType
 
   @Column({ type: 'text' })

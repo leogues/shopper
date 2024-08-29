@@ -1,17 +1,12 @@
 import { config } from 'dotenv'
 import * as Minio from 'minio'
-import { Attachment } from '../type'
+import { FilePayload, Storage, UploadedResult } from '../storage'
 config()
-
-type UploadedResult = {
-  fileId: string
-  presignedUrl: string
-}
 
 const MINIO_BUCKET = 'shopper'
 const PRESIGNED_URL_EXPIRY = 24 * 60 * 60 // 24 hours
 
-export class MinioStorage {
+export class MinioStorage implements Storage {
   private readonly client: Minio.Client
   private readonly minioEndPoint: string
   private readonly minioPort: number
@@ -22,14 +17,14 @@ export class MinioStorage {
     this.client = new Minio.Client(config)
   }
 
-  async upload(file: Attachment): Promise<UploadedResult> {
+  async upload(file: FilePayload): Promise<UploadedResult> {
     const fileId = crypto.randomUUID()
     await this.uploadToMinio(fileId, file)
     const presignedUrl = await this.getPresignedUrl(fileId)
     return { fileId, presignedUrl }
   }
 
-  uploadToMinio(fileId: string, file: Attachment) {
+  uploadToMinio(fileId: string, file: FilePayload) {
     const { mimetype, buffer } = file
     return this.client.putObject(MINIO_BUCKET, fileId, buffer, buffer.length, {
       'Content-Type': mimetype,
@@ -44,7 +39,7 @@ export class MinioStorage {
     )
   }
 
-  getAttachmentUrl(fileId: string) {
+  getPermanentFileUrl(fileId: string) {
     return `${this.minioEndPoint}:${this.minioPort}/${MINIO_BUCKET}/${fileId}`
   }
 }

@@ -1,4 +1,4 @@
-import { StorageConfig } from './type'
+import { StorageConfig } from './storage'
 
 export const loadStorageConfig = (): StorageConfig => {
   return {
