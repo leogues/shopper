@@ -25,9 +25,9 @@ export class MinioStorage implements Storage {
   }
 
   uploadToMinio(fileId: string, file: FilePayload) {
-    const { mimetype, buffer } = file
+    const { mimeType, buffer } = file
     return this.client.putObject(MINIO_BUCKET, fileId, buffer, buffer.length, {
-      'Content-Type': mimetype,
+      'Content-Type': mimeType,
     })
   }
 
