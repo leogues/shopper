@@ -12,10 +12,14 @@ const MINIO_BUCKET = 'shopper'
 const PRESIGNED_URL_EXPIRY = 24 * 60 * 60 // 24 hours
 
 export class MinioStorage {
-  private readonly minioClient: Minio.Client
+  private readonly client: Minio.Client
+  private readonly minioEndPoint: string
+  private readonly minioPort: number
 
   constructor(config: Minio.ClientOptions) {
-    this.minioClient = new Minio.Client(config)
+    this.minioEndPoint = config.endPoint
+    this.minioPort = config.port
+    this.client = new Minio.Client(config)
   }
 
   async upload(file: Attachment): Promise<UploadedResult> {
@@ -27,22 +31,20 @@ export class MinioStorage {
 
   uploadToMinio(fileId: string, file: Attachment) {
     const { mimetype, buffer } = file
-    return this.minioClient.putObject(
-      MINIO_BUCKET,
-      fileId,
-      buffer,
-      buffer.length,
-      {
-        'Content-Type': mimetype,
-      }
-    )
+    return this.client.putObject(MINIO_BUCKET, fileId, buffer, buffer.length, {
+      'Content-Type': mimetype,
+    })
   }
 
   async getPresignedUrl(fileId: string) {
-    return this.minioClient.presignedGetObject(
+    return this.client.presignedGetObject(
       MINIO_BUCKET,
       fileId,
       PRESIGNED_URL_EXPIRY
     )
+  }
+
+  getAttachmentUrl(fileId: string) {
+    return `${this.minioEndPoint}:${this.minioPort}/${MINIO_BUCKET}/${fileId}`
   }
 }
