@@ -7,7 +7,7 @@ export type IError = {
 export enum Errors {
   EINVALID = 'INVALID_DATA',
   ENOTFOUND = 'NOT_FOUND',
-  EDUPLICATION = 'DUPLICATE',
+  EDUPLICATION = 'DOUBLE_REPORT',
   EINTERNAL = 'INTERNAL_ERROR',
 }
 
