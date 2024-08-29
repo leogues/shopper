@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -20,6 +21,11 @@ export type MeasureType = keyof typeof SupportedMeasureType
 
 export const measureTypes = Object.values(SupportedMeasureType)
 
+@Index(
+  'idx_customerCode_measureDatetime',
+  ['customerCode', 'measureDatetime'],
+  { unique: true }
+)
 @Entity('measures')
 export class Measure {
   @PrimaryGeneratedColumn('uuid')
