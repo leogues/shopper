@@ -1,15 +1,10 @@
 import server from './app'
-import minioClient from './infrastructure/bucket/minio/minio'
+import { dataSource } from './infrastructure/database/typeorm/datasource'
 const port = 80
 
-minioClient
-  .bucketExists('shopper')
-  .then((res) => {
-    console.log(res)
-  })
-  .catch((err) => {
-    console.log(err)
-  })
+dataSource.driver.connect().then(() => {
+  console.log('Connected to database')
+})
 
 server.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
