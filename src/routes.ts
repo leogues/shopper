@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import { UploadDTO } from './DTO/uploadDTO'
 import { dataSource } from './infrastructure/database/typeorm/datasource'
 import { CustomerRepository } from './infrastructure/database/typeorm/repository/customerRepository'
+import { MeasureRepository } from './infrastructure/database/typeorm/repository/measureRepository'
 import { loadStorageConfig } from './infrastructure/storage/config'
 import { MinioStorage } from './infrastructure/storage/minio/minio'
 import { UploadMeasure } from './useCase/uploadMeasure'
@@ -14,8 +15,13 @@ const storageConfig = loadStorageConfig()
 const storage = new MinioStorage(storageConfig.minio)
 
 const costumerRepository = new CustomerRepository(dataSource)
+const measureRepository = new MeasureRepository(dataSource)
 
-const uploadMeasure = new UploadMeasure(storage, costumerRepository)
+const uploadMeasure = new UploadMeasure(
+  storage,
+  costumerRepository,
+  measureRepository
+)
 
 routes.post(
   '/upload',

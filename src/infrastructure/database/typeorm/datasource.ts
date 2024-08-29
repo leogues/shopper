@@ -14,7 +14,7 @@ export const dataSource = new DataSource({
   synchronize: true,
   entities: [Measure, Customer, Image],
   migrations: [],
-  logging: true,
+  logging: false,
 })
 
 dataSource
