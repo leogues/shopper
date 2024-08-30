@@ -20,9 +20,9 @@ const routes = express.Router()
 
 const storageConfig = loadStorageConfig()
 
-const IAFileManager = new GeminiFileManager(process.env.GEMINI_API_KEY)
 const storage = new MinioStorage(storageConfig.minio)
 const tempStorage = new TempFileStorage()
+const IAFileManager = new GeminiFileManager(process.env.GEMINI_API_KEY)
 
 const promptManager = new GeminiPromptManager(IAFileManager)
 const modelIA = new GeminiIA(process.env.GEMINI_API_KEY)
@@ -53,11 +53,8 @@ const measureController = new MeasureController(
   listCustomerMeasures
 )
 
-routes.post('/upload', measureController.upload.bind(measureController))
-routes.patch('/confirm', measureController.confirm.bind(measureController))
-routes.get(
-  '/:customer_code/list',
-  measureController.list.bind(measureController)
-)
+routes.post('/upload', measureController.upload)
+routes.patch('/confirm', measureController.confirm)
+routes.get('/:customer_code/list', measureController.list)
 
 export default routes

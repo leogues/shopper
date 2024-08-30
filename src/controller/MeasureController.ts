@@ -8,13 +8,21 @@ import { UploadMeasure } from '../useCase/uploadMeasure'
 import { decodeBase64Image } from '../utils/base64ToImage'
 
 export class MeasureController {
-  constructor(
-    private readonly uploadMeasure: UploadMeasure,
-    private readonly updateMeasure: ConfirmMeasure,
-    private readonly listCustomerMeasures: ListCustomerMeasure
-  ) {}
+  private readonly uploadMeasure: UploadMeasure
+  private readonly updateMeasure: ConfirmMeasure
+  private readonly listCustomerMeasures: ListCustomerMeasure
 
-  async upload(req: Request, res: Response, next: NextFunction) {
+  constructor(
+    uploadMeasure: UploadMeasure,
+    updateMeasure: ConfirmMeasure,
+    listCustomerMeasures: ListCustomerMeasure
+  ) {
+    this.uploadMeasure = uploadMeasure
+    this.updateMeasure = updateMeasure
+    this.listCustomerMeasures = listCustomerMeasures
+  }
+
+  upload = async (req: Request, res: Response, next: NextFunction) => {
     const uploadDTO = plainToClass(UploadDTO, req.body)
     const error = await uploadDTO.validate()
 
@@ -37,7 +45,7 @@ export class MeasureController {
     }
   }
 
-  async confirm(req: Request, res: Response, next: NextFunction) {
+  confirm = async (req: Request, res: Response, next: NextFunction) => {
     const confirmDTO = plainToClass(ConfirmDTO, req.body)
     const error = await confirmDTO.validate()
 
@@ -56,7 +64,7 @@ export class MeasureController {
     }
   }
 
-  async list(req: Request, res: Response, next: NextFunction) {
+  list = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_code } = req.params
     const { measure_type } = req.query
 
