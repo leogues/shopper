@@ -7,7 +7,7 @@ import { isBase64 } from 'validator'
 
 const SUPPORTED_IMAGE_TYPES = ['jpeg', 'png', 'webp']
 
-const isBase64Image = (value: any, args: ValidationArguments) => {
+export const isBase64Image = (value: any, args?: ValidationArguments) => {
   if (typeof value !== 'string') return false
 
   const prefixPattern = `^data:image\\/(${SUPPORTED_IMAGE_TYPES.join(
