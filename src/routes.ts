@@ -1,9 +1,9 @@
-import { plainToClass } from 'class-transformer'
 import { config } from 'dotenv'
-import express, { NextFunction, Request, Response } from 'express'
-import { UploadDTO } from './DTO/uploadDTO'
+import express from 'express'
+import { MeasureController } from './controller/MeasureController'
 import { dataSource } from './infrastructure/database/typeorm/datasource'
 import { CustomerRepository } from './infrastructure/database/typeorm/repository/customerRepository'
+import { ImageRepository } from './infrastructure/database/typeorm/repository/imageRepository'
 import { MeasureRepository } from './infrastructure/database/typeorm/repository/measureRepository'
 import { GeminiIA } from './infrastructure/LLM/gemini/gemini'
 import { GeminiFileManager } from './infrastructure/LLM/gemini/geminiFileManger'
@@ -11,8 +11,9 @@ import { GeminiPromptManager } from './infrastructure/LLM/gemini/geminiPromptMan
 import { loadStorageConfig } from './infrastructure/storage/config'
 import { TempFileStorage } from './infrastructure/storage/fileSystem/tempStorage'
 import { MinioStorage } from './infrastructure/storage/minio/minio'
+import { ConfirmMeasure } from './useCase/confirmMeasure'
+import { ListCustomerMeasure } from './useCase/listCustomerMeasure'
 import { UploadMeasure } from './useCase/uploadMeasure'
-import { decodeBase64Image } from './utils/base64ToImage'
 config()
 
 const routes = express.Router()
@@ -20,14 +21,15 @@ const routes = express.Router()
 const storageConfig = loadStorageConfig()
 
 const IAFileManager = new GeminiFileManager(process.env.GEMINI_API_KEY)
-const promptManager = new GeminiPromptManager(IAFileManager)
-const modelIA = new GeminiIA(process.env.GEMINI_API_KEY)
-
 const storage = new MinioStorage(storageConfig.minio)
 const tempStorage = new TempFileStorage()
 
+const promptManager = new GeminiPromptManager(IAFileManager)
+const modelIA = new GeminiIA(process.env.GEMINI_API_KEY)
+
 const costumerRepository = new CustomerRepository(dataSource)
 const measureRepository = new MeasureRepository(dataSource)
+const imageRepository = new ImageRepository(dataSource)
 
 const uploadMeasure = new UploadMeasure(
   storage,
@@ -35,33 +37,27 @@ const uploadMeasure = new UploadMeasure(
   promptManager,
   modelIA,
   costumerRepository,
-  measureRepository
+  measureRepository,
+  imageRepository
+)
+const updateMeasure = new ConfirmMeasure(
+  storage,
+  measureRepository,
+  imageRepository
+)
+const listCustomerMeasures = new ListCustomerMeasure(measureRepository)
+
+const measureController = new MeasureController(
+  uploadMeasure,
+  updateMeasure,
+  listCustomerMeasures
 )
 
-routes.post(
-  '/upload',
-  async (req: Request, res: Response, next: NextFunction) => {
-    const uploadDTO = plainToClass(UploadDTO, req.body)
-    const error = await uploadDTO.validate()
-
-    if (error) return next(error)
-
-    try {
-      const { data, mimeType } = decodeBase64Image(uploadDTO.image)
-      const { customer_code, measure_datetime, measure_type } = uploadDTO
-
-      const foo = await uploadMeasure.execute({
-        image: { buffer: data, mimeType },
-        customer_code: customer_code,
-        measure_datetime: measure_datetime,
-        measure_type: measure_type,
-      })
-
-      return res.json(foo)
-    } catch (error) {
-      return next(error)
-    }
-  }
+routes.post('/upload', measureController.upload.bind(measureController))
+routes.patch('/confirm', measureController.confirm.bind(measureController))
+routes.get(
+  '/:customer_code/list',
+  measureController.list.bind(measureController)
 )
 
 export default routes

@@ -1,6 +1,8 @@
 import { Errors, IError } from '../errors'
 import { ICustomerRepository } from '../infrastructure/database/repository/customer'
+import { IImageRepository } from '../infrastructure/database/repository/image'
 import { IMeasureRepository } from '../infrastructure/database/repository/measure'
+import { MeasureType } from '../infrastructure/database/typeorm/entities/measure.entity'
 import { promptText } from '../infrastructure/LLM/gemini/promptText'
 import { ModelIA, PromptManager } from '../infrastructure/LLM/LLM'
 import {
@@ -8,17 +10,20 @@ import {
   Storage,
   TempStorage,
 } from '../infrastructure/storage/storage'
+import { extractNumbers } from '../utils/extractNumberToText'
 import { sharpImageWithText } from '../utils/sharpImage'
-
-// const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-
-// const fileManager = new GoogleAIFileManager(GEMINI_API_KEY)
 
 type UploadMeasureInput = {
   image: Omit<FilePayload, 'fileId'>
   customer_code: string
   measure_datetime: Date
-  measure_type: string
+  measure_type: MeasureType
+}
+
+type Output = {
+  image_url: string
+  measure_value: number
+  measure_uuid: string
 }
 
 export class UploadMeasure {
@@ -28,6 +33,7 @@ export class UploadMeasure {
   private readonly modelIA: ModelIA
   private readonly customerRepository: ICustomerRepository
   private readonly measureRepository: IMeasureRepository
+  private readonly imageRepository: IImageRepository
 
   constructor(
     storage: Storage,
@@ -35,7 +41,8 @@ export class UploadMeasure {
     promptManager: PromptManager,
     modelIA: ModelIA,
     customerRepository: ICustomerRepository,
-    measureRepository: IMeasureRepository
+    measureRepository: IMeasureRepository,
+    imageRepository: IImageRepository
   ) {
     this.storage = storage
     this.tempStorage = tempStorage
@@ -43,9 +50,10 @@ export class UploadMeasure {
     this.modelIA = modelIA
     this.customerRepository = customerRepository
     this.measureRepository = measureRepository
+    this.imageRepository = imageRepository
   }
 
-  async execute(input: UploadMeasureInput) {
+  async execute(input: UploadMeasureInput): Promise<Output> {
     const { customer_code, measure_type, measure_datetime, image } = input
 
     const [_, exists] = await this.checkCustomerAndMeasure(
@@ -55,7 +63,7 @@ export class UploadMeasure {
     )
     if (exists) {
       throw <IError>{
-        code: Errors.EDUPLICATION,
+        code: Errors.EDOUBLEREPORT,
         message: 'Leitura do mês já realizada',
       }
     }
@@ -78,25 +86,45 @@ export class UploadMeasure {
 
     const tempImagePath = await this.tempStorage.write(processedImage)
 
-    const [promptPayload, result] = await this.uploadWithPromptGeneration(
+    const [promptPayload, uploadResult] = await this.uploadWithPromptGeneration(
       tempImagePath,
       originalImage
     )
 
     if (promptPayload) this.tempStorage.delete(tempImagePath)
 
-    const geminiResponse = await this.modelIA.executePrompt(promptPayload)
+    const modelMeterReadingTextResponse = await this.modelIA.executePrompt(
+      promptPayload
+    )
+
+    const meterReadingValues = extractNumbers(modelMeterReadingTextResponse)[0]
+
+    if (!meterReadingValues) throw Error(modelMeterReadingTextResponse)
+
+    const savedImage = await this.imageRepository.create(
+      fileId,
+      uploadResult.fileName,
+      uploadResult.presignedUrl
+    )
+
+    const measure = await this.measureRepository.create(
+      customer_code,
+      savedImage.id,
+      meterReadingValues,
+      measure_datetime,
+      measure_type
+    )
 
     return {
-      tempImagePath,
-      ...result,
-      geminiResponse,
+      image_url: savedImage.imageUrl,
+      measure_value: measure.measureValue,
+      measure_uuid: measure.id,
     }
   }
 
   private checkCustomerAndMeasure(
     customer_code: string,
-    measure_type: string,
+    measure_type: MeasureType,
     measure_datetime: Date
   ) {
     const customerPromise =
@@ -119,8 +147,8 @@ export class UploadMeasure {
       }
     )
 
-    const resultPromise = this.storage.upload(image)
+    const storageResult = this.storage.upload(image)
 
-    return Promise.all([promptPayloadPromise, resultPromise])
+    return Promise.all([promptPayloadPromise, storageResult])
   }
 }

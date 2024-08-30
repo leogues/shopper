@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { FilePayload, TempStorage } from '../storage'
 
-const TEMP_DIR = 'uploads'
+const TEMP_DIR = 'temp'
 
 export class TempFileStorage implements TempStorage {
   private readonly tempDir: string

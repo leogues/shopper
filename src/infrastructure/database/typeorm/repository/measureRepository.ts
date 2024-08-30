@@ -9,7 +9,7 @@ export class MeasureRepository implements IMeasureRepository {
     this.measureRepository = dataSource.getRepository(Measure)
   }
 
-  async existsMeasureForMonth(
+  existsMeasureForMonth(
     customerCode: string,
     measureType: MeasureType,
     date: Date
@@ -22,5 +22,48 @@ export class MeasureRepository implements IMeasureRepository {
       measureType,
       measureDatetime: Between(startOfMonth, endOfMonth),
     })
+  }
+
+  findAllByCustomerCode(
+    customerCode: string,
+    measureType?: MeasureType
+  ): Promise<Measure[]> {
+    return this.measureRepository.find({
+      where: { customerCode, measureType },
+      relations: ['image'],
+    })
+  }
+
+  findById(id: string): Promise<Measure | undefined> {
+    return this.measureRepository.findOne({
+      where: { id },
+      relations: ['image'],
+    })
+  }
+
+  create(
+    customerCode: string,
+    imageId: string,
+    measureValue: number,
+    measureDatetime: Date,
+    measureType: MeasureType
+  ): Promise<Measure> {
+    const measure = this.measureRepository.create({
+      customerCode,
+      imageId,
+      measureValue,
+      measureDatetime,
+      measureType,
+    })
+
+    return this.measureRepository.save(measure)
+  }
+
+  async update(measure: Measure): Promise<boolean> {
+    const { id, ...rest } = measure
+    const updateResult = await this.measureRepository.update(measure.id, {
+      ...rest,
+    })
+    return updateResult.affected > 0
   }
 }

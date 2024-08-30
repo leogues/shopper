@@ -21,6 +21,8 @@ export type MeasureType = keyof typeof SupportedMeasureType
 
 export const measureTypes = Object.values(SupportedMeasureType)
 
+@Index('idx_imageId', ['imageId'])
+@Index('idx_customerCode_measureType', ['customerCode', 'measureType'])
 @Index(
   'idx_customerCode_measureDatetime',
   ['customerCode', 'measureDatetime'],
@@ -31,20 +33,14 @@ export class Measure {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ type: 'varchar', length: 255 })
-  customerCode: string
-
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: false })
   measureDatetime: Date
 
-  @Column({ type: 'enum', enum: measureTypes })
+  @Column({ type: 'enum', enum: measureTypes, nullable: false })
   measureType: MeasureType
 
-  @Column({ type: 'text' })
-  imageUrl: string
-
-  @Column({ type: 'integer', nullable: true })
-  confirmedValue?: number
+  @Column({ type: 'integer', nullable: false })
+  measureValue: number
 
   @Column({ type: 'boolean', default: false })
   hasConfirmed: boolean
@@ -55,10 +51,17 @@ export class Measure {
   @UpdateDateColumn()
   updatedAt: Date
 
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  customerCode: string
+
+  @Column({ type: 'uuid', nullable: false })
+  imageId: string
+
   @ManyToOne(() => Customer, (customer) => customer.measures)
+  @JoinColumn({ name: 'customerCode' })
   customer: Customer
 
   @OneToOne(() => Image, (image) => image.measure)
-  @JoinColumn()
+  @JoinColumn({ name: 'imageId' })
   image: Image
 }

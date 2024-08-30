@@ -6,15 +6,19 @@ export type IError = {
 
 export enum Errors {
   EINVALID = 'INVALID_DATA',
+  EINVALIDTYPE = 'INVALID_TYPE',
   ENOTFOUND = 'NOT_FOUND',
-  EDUPLICATION = 'DOUBLE_REPORT',
+  EDOUBLEREPORT = 'DOUBLE_REPORT',
+  EDUPLICATION = 'DUPLICATE',
   EINTERNAL = 'INTERNAL_ERROR',
 }
 
 export const HTTPErrors = {
   [Errors.EINVALID]: 400,
+  [Errors.EINVALIDTYPE]: 400,
   [Errors.ENOTFOUND]: 404,
   [Errors.EDUPLICATION]: 409,
+  [Errors.EDOUBLEREPORT]: 409,
   [Errors.EINTERNAL]: 500,
 }
 

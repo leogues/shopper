@@ -14,6 +14,9 @@ export class Image {
   id: string
 
   @Column({ type: 'text' })
+  imageName: string
+
+  @Column({ type: 'text' })
   imageUrl: string
 
   @CreateDateColumn()
