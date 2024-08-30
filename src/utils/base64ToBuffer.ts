@@ -1,9 +1,9 @@
-type DecodedImage = {
+type DecodedFile = {
   mimeType: string
   data: Buffer
 }
 
-export const decodeBase64Image = (value: string): DecodedImage => {
+export const decodeBase64File = (value: string): DecodedFile => {
   const [mimeTypePart, base64Data] = value.split(';base64,')
   if (!mimeTypePart || !base64Data) {
     throw new Error('Invalid Base64 image format')

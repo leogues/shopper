@@ -5,7 +5,7 @@ import { UploadDTO } from '../DTO/uploadDTO'
 import { ConfirmMeasure } from '../useCase/confirmMeasure'
 import { ListCustomerMeasure } from '../useCase/listCustomerMeasure'
 import { UploadMeasure } from '../useCase/uploadMeasure'
-import { decodeBase64Image } from '../utils/base64ToImage'
+import { decodeBase64File } from '../utils/base64ToBuffer'
 
 export class MeasureController {
   private readonly uploadMeasure: UploadMeasure
@@ -29,8 +29,9 @@ export class MeasureController {
     if (error) return next(error)
 
     try {
-      const { data, mimeType } = decodeBase64Image(uploadDTO.image)
-      const { customer_code, measure_datetime, measure_type } = uploadDTO
+      const { customer_code, measure_datetime, measure_type, image } = uploadDTO
+
+      const { data, mimeType } = decodeBase64File(image)
 
       const output = await this.uploadMeasure.execute({
         image: { buffer: data, mimeType },

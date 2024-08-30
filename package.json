@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently --kill-others \"npm run watch:ts\" \"nodemon dist/server.js\"",
@@ -16,7 +16,8 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "nodemon": "^3.1.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@google/generative-ai": "^0.17.1",
