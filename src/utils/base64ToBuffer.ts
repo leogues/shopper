@@ -6,7 +6,7 @@ type DecodedFile = {
 export const decodeBase64File = (value: string): DecodedFile => {
   const [mimeTypePart, base64Data] = value.split(';base64,')
   if (!mimeTypePart || !base64Data) {
-    throw new Error('Invalid Base64 image format')
+    throw new Error('Invalid Base64 file format')
   }
 
   const mimeType = mimeTypePart.replace('data:', '')

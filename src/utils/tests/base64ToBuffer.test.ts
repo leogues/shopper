@@ -15,15 +15,13 @@ describe('decodeBase64File', () => {
   test('should error for an empty base64 image data', () => {
     const input = 'data:image/png;base64,'
 
-    expect(() => decodeBase64File(input)).toThrow('Invalid Base64 without data')
+    expect(() => decodeBase64File(input)).toThrow('Invalid Base64 file format')
   })
 
   test('should throw error for a base64 string without data URI prefix', () => {
     const input =
       'iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB8MH3LAAAAOElEQVR42mP8z8AARgAq+0'
 
-    expect(() => decodeBase64File(input)).toThrow(
-      'Invalid Base64 without data URI prefix'
-    )
+    expect(() => decodeBase64File(input)).toThrow('Invalid Base64 file format')
   })
 })
