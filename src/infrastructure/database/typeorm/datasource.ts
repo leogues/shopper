@@ -1,21 +1,11 @@
 import { config } from 'dotenv'
 import { DataSource } from 'typeorm'
-import { Customer } from './entities/customer.entity'
-import { Image } from './entities/image.entity'
-import { Measure } from './entities/measure.entity'
+import { loadDatabaseConfig } from '../config'
 config()
 
-const DATABASE_URL =
-  process.env.DATABASE_URL || 'postgresql://root:root@localhost:5433/shopper'
+const DatabaseConfig = loadDatabaseConfig()
 
-export const dataSource = new DataSource({
-  type: 'postgres',
-  url: DATABASE_URL,
-  synchronize: true,
-  entities: [Measure, Customer, Image],
-  migrations: [],
-  logging: false,
-})
+export const dataSource = new DataSource(DatabaseConfig.postgres)
 
 dataSource
   .initialize()

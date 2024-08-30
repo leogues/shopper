@@ -1,7 +1,6 @@
-import crypto from 'crypto'
 import { promises as fs } from 'fs'
 import path from 'path'
-import { TempStorage } from '../storage'
+import { FilePayload, TempStorage } from '../storage'
 
 const TEMP_DIR = 'uploads'
 
@@ -25,9 +24,10 @@ export class TempFileStorage implements TempStorage {
     return mimeType.split('/')[1] || ''
   }
 
-  public async write(buffer: Buffer, mimeType: string): Promise<string> {
+  public async write(file: FilePayload): Promise<string> {
+    const { buffer, mimeType, fileId } = file
     const fileExtension = this.extractFileExtension(mimeType)
-    const fileName = `${crypto.randomUUID()}.${fileExtension}`
+    const fileName = `${fileId}.${fileExtension}`
     const filePath = path.join(this.tempDir, fileName)
 
     try {
@@ -38,13 +38,11 @@ export class TempFileStorage implements TempStorage {
     }
   }
 
-  public async delete(fileName: string): Promise<void> {
-    const filePath = path.join(this.tempDir, fileName)
-
+  public async delete(filePath: string): Promise<void> {
     try {
       await fs.unlink(filePath)
     } catch (error) {
-      throw error
+      console.error(error)
     }
   }
 }

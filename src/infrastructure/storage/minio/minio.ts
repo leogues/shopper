@@ -17,21 +17,32 @@ export class MinioStorage implements Storage {
     this.client = new Minio.Client(config)
   }
 
+  private extractFileExtension(mimeType: string): string {
+    return mimeType.split('/')[1] || ''
+  }
+
   async upload(file: FilePayload): Promise<UploadedResult> {
-    const fileId = crypto.randomUUID()
-    await this.uploadToMinio(fileId, file)
-    const presignedUrl = await this.getPresignedUrl(fileId)
-    return { fileId, presignedUrl }
+    const fileExtension = this.extractFileExtension(file.mimeType)
+    const fileName = `${file.fileId}.${fileExtension}`
+    await this.uploadToMinio(fileName, file)
+    const presignedUrl = await this.getPresignedUrl(fileName)
+    return { fileId: file.fileId, fileName, presignedUrl }
   }
 
-  uploadToMinio(fileId: string, file: FilePayload) {
+  uploadToMinio(fileName: string, file: FilePayload) {
     const { mimeType, buffer } = file
-    return this.client.putObject(MINIO_BUCKET, fileId, buffer, buffer.length, {
-      'Content-Type': mimeType,
-    })
+    return this.client.putObject(
+      MINIO_BUCKET,
+      fileName,
+      buffer,
+      buffer.length,
+      {
+        'Content-Type': mimeType,
+      }
+    )
   }
 
-  async getPresignedUrl(fileId: string) {
+  getPresignedUrl(fileId: string) {
     return this.client.presignedGetObject(
       MINIO_BUCKET,
       fileId,

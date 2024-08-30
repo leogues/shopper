@@ -1,4 +1,5 @@
 export type FilePayload = {
+  fileId: string
   mimeType: string
   buffer: Buffer
 }
@@ -15,6 +16,7 @@ export type StorageConfig = {
 
 export type UploadedResult = {
   fileId: string
+  fileName: string
   presignedUrl: string
 }
 
@@ -24,6 +26,6 @@ export interface Storage {
 }
 
 export interface TempStorage {
-  write(buffer: Buffer, mimeType: string): Promise<string>
+  write(file: FilePayload): Promise<string>
   delete(fileName: string): Promise<void>
 }

@@ -1,18 +1,27 @@
 import { plainToClass } from 'class-transformer'
+import { config } from 'dotenv'
 import express, { NextFunction, Request, Response } from 'express'
 import { UploadDTO } from './DTO/uploadDTO'
 import { dataSource } from './infrastructure/database/typeorm/datasource'
 import { CustomerRepository } from './infrastructure/database/typeorm/repository/customerRepository'
 import { MeasureRepository } from './infrastructure/database/typeorm/repository/measureRepository'
+import { GeminiIA } from './infrastructure/LLM/gemini/gemini'
+import { GeminiFileManager } from './infrastructure/LLM/gemini/geminiFileManger'
+import { GeminiPromptManager } from './infrastructure/LLM/gemini/geminiPromptManager'
 import { loadStorageConfig } from './infrastructure/storage/config'
 import { TempFileStorage } from './infrastructure/storage/fileSystem/tempStorage'
 import { MinioStorage } from './infrastructure/storage/minio/minio'
 import { UploadMeasure } from './useCase/uploadMeasure'
 import { decodeBase64Image } from './utils/base64ToImage'
+config()
 
 const routes = express.Router()
 
 const storageConfig = loadStorageConfig()
+
+const IAFileManager = new GeminiFileManager(process.env.GEMINI_API_KEY)
+const promptManager = new GeminiPromptManager(IAFileManager)
+const modelIA = new GeminiIA(process.env.GEMINI_API_KEY)
 
 const storage = new MinioStorage(storageConfig.minio)
 const tempStorage = new TempFileStorage()
@@ -23,6 +32,8 @@ const measureRepository = new MeasureRepository(dataSource)
 const uploadMeasure = new UploadMeasure(
   storage,
   tempStorage,
+  promptManager,
+  modelIA,
   costumerRepository,
   measureRepository
 )
