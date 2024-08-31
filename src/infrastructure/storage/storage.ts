@@ -1,3 +1,5 @@
+import * as Minio from 'minio'
+
 export type FilePayload = {
   fileId: string
   mimeType: string
@@ -5,13 +7,7 @@ export type FilePayload = {
 }
 
 export type StorageConfig = {
-  minio: {
-    endPoint: string
-    port: number
-    useSSL: boolean
-    accessKey: string
-    secretKey: string
-  }
+  minio: Minio.ClientOptions
 }
 
 export type UploadedResult = {
