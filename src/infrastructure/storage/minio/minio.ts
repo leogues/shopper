@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import * as Minio from 'minio'
 import { FilePayload, Storage, UploadedResult } from '../storage'
+import { StartMinio } from './startMinio'
 config()
 
 const MINIO_BUCKET = 'shopper'
@@ -15,6 +16,11 @@ export class MinioStorage implements Storage {
     this.minioEndPoint = config.endPoint
     this.minioPort = config.port
     this.client = new Minio.Client(config)
+    const startMinio = new StartMinio(MINIO_BUCKET, this.client)
+
+    startMinio.start().catch((error) => {
+      console.error('Erro ao iniciar o Minio.', error)
+    })
   }
 
   private extractFileExtension(mimeType: string): string {
