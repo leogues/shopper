@@ -1,5 +1,0 @@
-FROM minio/minio:latest
-
-COPY setup.sh .
-
-CMD [ "server", "/data", "--console-address", ":9001", "&", "sh", "setup.sh" ]
