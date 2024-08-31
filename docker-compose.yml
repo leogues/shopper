@@ -6,6 +6,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      minio:
+        condition: service_started
     ports:
       - '80:80'
     volumes:
@@ -21,8 +23,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-    volumes:
-      - shopper_db:/var/lib/postgresql/data
+    # volumes:
+    #   - shopper_db:/var/lib/postgresql/data
     ports:
       - '5433:5432'
   minio:
@@ -30,14 +32,13 @@ services:
     environment:
       MINIO_ROOT_USER: root
       MINIO_ROOT_PASSWORD: root1234
-      MINIO_SERVER_URL: http://localhost:9000
+    hostname: localhost
     command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
+    # volumes:
+    #   - minio_data:/data
     ports:
       - '9000:9000'
       - '9001:9001'
-
-volumes:
-  shopper_db:
-  minio_data:
+# volumes:
+#   shopper_db:
+#   minio_data:
