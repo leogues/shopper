@@ -14,8 +14,22 @@ export class MeasureRepository implements IMeasureRepository {
     measureType: MeasureType,
     date: Date
   ): Promise<boolean> {
-    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
-    const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    const startOfMonth = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      1,
+      0,
+      0,
+      0
+    )
+    const endOfMonth = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      23,
+      59,
+      59
+    )
 
     return this.measureRepository.existsBy({
       customerCode,
