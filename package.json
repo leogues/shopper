@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "build:ts": "tsc",
-    "watch:ts": "tsc -w",
+    "build:ts": "npx tsc",
+    "watch:ts": "npx tsc -w",
     "dev": "npm run build:ts && concurrently --kill-others \"npm run watch:ts\" \"nodemon dist/server.js\"",
     "start": "npm run build:ts && node dist/server.js"
   },
