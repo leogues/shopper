@@ -1,11 +1,12 @@
 FROM node:20.17.0
 
-WORKDIR /backend
+WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json .
+
 RUN npm install
 
-COPY . ./
+COPY . .
 
 CMD ["npm", "run", "start"]
 
