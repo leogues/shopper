@@ -1,0 +1,44 @@
+services:
+  backend:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '80:80'
+    volumes:
+      - .:/backend
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: shopper
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U root -d shopper']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - shopper_db:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: root1234
+    volumes:
+      - minio_data:/data
+      - ./minio/entrypoint.sh:/entrypoint.sh
+      - ./minio/setup.sh:/setup.sh
+    entrypoint: /entrypoint.sh
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+
+volumes:
+  shopper_db:
+  minio_data:
