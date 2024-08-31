@@ -9,6 +9,13 @@ describe('isBase64Image', () => {
     expect(output).toBe(true)
   })
 
+  it('should return true for a valid base64 image string with @file data URI prefix', () => {
+    const input =
+      'data:@file/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAARAB8MH3LAAAAOElEQVR42mP8z8AARgAq+0'
+    const output = isBase64Image(input)
+    expect(output).toBe(true)
+  })
+
   it('should return false for an invalid base64 image string', () => {
     const input = 'data:image/png;base64,invalidBase64String'
     const output = isBase64Image(input)
