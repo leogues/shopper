@@ -23,11 +23,7 @@ export const measureTypes = Object.values(SupportedMeasureType)
 
 @Index('idx_imageId', ['imageId'])
 @Index('idx_customerCode_measureType', ['customerCode', 'measureType'])
-@Index(
-  'idx_customerCode_measureDatetime',
-  ['customerCode', 'measureDatetime'],
-  { unique: true }
-)
+@Index('idx_customerCode_measureDatetime', ['customerCode', 'measureDatetime'])
 @Entity('measures')
 export class Measure {
   @PrimaryGeneratedColumn('uuid')
