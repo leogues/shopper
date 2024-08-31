@@ -11,7 +11,6 @@ import {
   TempStorage,
 } from '../infrastructure/storage/storage'
 import { extractNumbers } from '../utils/extractNumberToText'
-import { sharpImageWithText } from '../utils/sharpImage'
 
 type UploadMeasureInput = {
   image: Omit<FilePayload, 'fileId'>
@@ -70,21 +69,13 @@ export class UploadMeasure {
 
     const fileId = crypto.randomUUID()
 
-    const processedImageBuffer = await sharpImageWithText(image.buffer)
-
     const originalImage: FilePayload = {
       fileId: fileId,
       buffer: image.buffer,
       mimeType: image.mimeType,
     }
 
-    const processedImage: FilePayload = {
-      fileId: fileId,
-      buffer: processedImageBuffer,
-      mimeType: image.mimeType,
-    }
-
-    const tempImagePath = await this.tempStorage.write(processedImage)
+    const tempImagePath = await this.tempStorage.write(originalImage)
 
     const [promptPayload, uploadResult] = await this.uploadWithPromptGeneration(
       tempImagePath,

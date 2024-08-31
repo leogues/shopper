@@ -1,4 +1,15 @@
 services:
+  backend:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '80:80'
+    volumes:
+      - .:/backend
   db:
     image: postgres
     environment:
@@ -14,7 +25,6 @@ services:
       - shopper_db:/var/lib/postgresql/data
     ports:
       - '5433:5432'
-
   minio:
     image: minio/minio:latest
     environment:
@@ -28,6 +38,7 @@ services:
     ports:
       - '9000:9000'
       - '9001:9001'
+
 volumes:
   shopper_db:
   minio_data:

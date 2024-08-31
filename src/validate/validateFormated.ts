@@ -1,7 +1,7 @@
 import { validate, ValidationError, ValidatorOptions } from 'class-validator'
 import { Errors, IError } from '../errors'
 
-export function formatValidationErrors(errors: ValidationError[]): string {
+function formatValidationErrors(errors: ValidationError[]): string {
   const errorMessages: string[] = []
 
   errors.forEach((error) => {
